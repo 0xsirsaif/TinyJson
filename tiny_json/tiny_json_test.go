@@ -21,10 +21,10 @@ func TestEmptyInput(t *testing.T) {
 
 		token := l.NextToken()
 		if token.Type != tt.expectedType {
-			t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q", i, tt.expectedType, token.Type)
+			t.Fatalf("test_samples[%d] - tokentype wrong. expected=%q, got=%q", i, tt.expectedType, token.Type)
 		}
 		if token.Literal != tt.expectedLiteral {
-			t.Fatalf("tests[%d] - tokenliteral wrong. expected=%q, got=%q", i, tt.expectedLiteral, token.Literal)
+			t.Fatalf("test_samples[%d] - tokenliteral wrong. expected=%q, got=%q", i, tt.expectedLiteral, token.Literal)
 		}
 	}
 }
@@ -47,16 +47,24 @@ func TestEmptyJSON(t *testing.T) {
 
 		token := l.NextToken()
 		if token.Type != tt.expectedType {
-			t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q", i, tt.expectedType, token.Type)
+			t.Fatalf("test_samples[%d] - tokentype wrong. expected=%q, got=%q", i, tt.expectedType, token.Type)
 		}
 		if token.Literal != tt.expectedLiteral {
-			t.Fatalf("tests[%d] - tokenliteral wrong. expected=%q, got=%q", i, tt.expectedLiteral, token.Literal)
+			t.Fatalf("test_samples[%d] - tokenliteral wrong. expected=%q, got=%q", i, tt.expectedLiteral, token.Literal)
 		}
 	}
 }
 
 func TestSimpleJSON(t *testing.T) {
-	input := `{"key": "value"}`
+	input := `{
+		"key": "value",
+		"key1": "value",
+		"key2": 22222,
+		"key_3": 33333,
+		"key-4": 44444,
+		"11111": 11111,
+		"a1b2c3d4000000": true
+	}`
 
 	// a slice of anonymous structs
 	tests := []struct {
@@ -64,6 +72,7 @@ func TestSimpleJSON(t *testing.T) {
 		expectedLiteral string
 	}{
 		{LBRACE, "{"},
+
 		{DOUBLEQUOTE, "\""},
 		{IDENTIFIER, "key"},
 		{DOUBLEQUOTE, "\""},
@@ -71,30 +80,75 @@ func TestSimpleJSON(t *testing.T) {
 		{DOUBLEQUOTE, "\""},
 		{IDENTIFIER, "value"},
 		{DOUBLEQUOTE, "\""},
+		{COMMA, ","},
+
+		{DOUBLEQUOTE, "\""},
+		{IDENTIFIER, "key1"},
+		{DOUBLEQUOTE, "\""},
+		{COLON, ":"},
+		{DOUBLEQUOTE, "\""},
+		{IDENTIFIER, "value"},
+		{DOUBLEQUOTE, "\""},
+		{COMMA, ","},
+
+		{DOUBLEQUOTE, "\""},
+		{IDENTIFIER, "key2"},
+		{DOUBLEQUOTE, "\""},
+		{COLON, ":"},
+		{INT, "22222"},
+		{COMMA, ","},
+
+		{DOUBLEQUOTE, "\""},
+		{IDENTIFIER, "key_3"},
+		{DOUBLEQUOTE, "\""},
+		{COLON, ":"},
+		{INT, "33333"},
+		{COMMA, ","},
+
+		{DOUBLEQUOTE, "\""},
+		{IDENTIFIER, "key-4"},
+		{DOUBLEQUOTE, "\""},
+		{COLON, ":"},
+		{INT, "44444"},
+		{COMMA, ","},
+
+		{DOUBLEQUOTE, "\""},
+		{IDENTIFIER, "11111"},
+		{DOUBLEQUOTE, "\""},
+		{COLON, ":"},
+		{INT, "11111"},
+		{COMMA, ","},
+
+		{DOUBLEQUOTE, "\""},
+		{IDENTIFIER, "a1b2c3d4000000"},
+		{DOUBLEQUOTE, "\""},
+		{COLON, ":"},
+		{TRUE, "true"},
+
 		{RBRACE, "}"},
 	}
 
 	l := NewLexer(input)
 
 	for i, tt := range tests {
-
 		token := l.NextToken()
+
 		if token.Type != tt.expectedType {
-			t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q", i, tt.expectedType, token.Type)
+			t.Fatalf("test_samples[%d] - tokentype wrong. expected=%q, got=%q", i, tt.expectedType, token.Type)
 		}
 		if token.Literal != tt.expectedLiteral {
-			t.Fatalf("tests[%d] - tokenliteral wrong. expected=%q, got=%q", i, tt.expectedLiteral, token.Literal)
+			t.Fatalf("test_samples[%d] - tokenliteral wrong. expected=%q, got=%q", i, tt.expectedLiteral, token.Literal)
 		}
 	}
 }
 
 func TestMultiKeysJSON(t *testing.T) {
 	input := `{
-  		"key_one": true,
-  		"key_two": false,
-  		"key_three": null,
-  		"key_four": "value",
-  		"key_five": 101
+ 		"key_one": true,
+ 		"key_two": false,
+ 		"key_three": null,
+ 		"key_four": "value",
+ 		"key_five": 101
 	}`
 
 	// a slice of anonymous structs
@@ -148,11 +202,12 @@ func TestMultiKeysJSON(t *testing.T) {
 	for i, tt := range tests {
 
 		token := l.NextToken()
+
 		if token.Type != tt.expectedType {
-			t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q", i, tt.expectedType, token.Type)
+			t.Fatalf("test_samples[%d] - tokentype wrong. expected=%q, got=%q", i, tt.expectedType, token.Type)
 		}
 		if token.Literal != tt.expectedLiteral {
-			t.Fatalf("tests[%d] - tokenliteral wrong. expected=%q, got=%q", i, tt.expectedLiteral, token.Literal)
+			t.Fatalf("test_samples[%d] - tokenliteral wrong. expected=%q, got=%q", i, tt.expectedLiteral, token.Literal)
 		}
 	}
 }
@@ -160,9 +215,9 @@ func TestMultiKeysJSON(t *testing.T) {
 func TestMultiKeysJSONWithArray(t *testing.T) {
 	input := `{
 		"key": "value",
-  		"key-n": 101,
-  		"key-o": {},
-  		"key-l": []
+ 		"key-n": 101,
+ 		"key-o": {},
+ 		"key-l": []
 	}`
 
 	// a slice of anonymous structs
@@ -186,6 +241,7 @@ func TestMultiKeysJSONWithArray(t *testing.T) {
 		{DOUBLEQUOTE, "\""},
 		{COLON, ":"},
 		{INT, "101"},
+		{COMMA, ","},
 
 		{DOUBLEQUOTE, "\""},
 		{IDENTIFIER, "key-o"},
@@ -211,10 +267,10 @@ func TestMultiKeysJSONWithArray(t *testing.T) {
 
 		token := l.NextToken()
 		if token.Type != tt.expectedType {
-			t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q", i, tt.expectedType, token.Type)
+			t.Fatalf("test_samples[%d] - tokentype wrong. expected=%q, got=%q", i, tt.expectedType, token.Type)
 		}
 		if token.Literal != tt.expectedLiteral {
-			t.Fatalf("tests[%d] - tokenliteral wrong. expected=%q, got=%q", i, tt.expectedLiteral, token.Literal)
+			t.Fatalf("test_samples[%d] - tokenliteral wrong. expected=%q, got=%q", i, tt.expectedLiteral, token.Literal)
 		}
 	}
 }

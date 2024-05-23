@@ -18,9 +18,9 @@ token := lexer.NextToken()
 ```
 
 ## TODO:
+- [x] Parse Numbers in Keys, e.x. `{"key1": 1, "key2": 2, "3", 3, "a123": true}`
 - [] Parser
 - [] Support Unicode characters
-- [] Parse Numbers in Keys, e.g. `{"key1": 1, "key2": 2}`
 - [] Escape characters in strings
     - [] `\"` quotation mark
     - [] `\\` backslash
