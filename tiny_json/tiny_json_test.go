@@ -58,7 +58,12 @@ func TestSimpleJSON(t *testing.T) {
 		"key_3": 33333,
 		"key-4": 44444,
 		"11111": 11111,
-		"a1b2c3d4000000": true
+		"a1b2c3d4000000": true,
+		"key_one": true,
+		"key_two": false,
+		"key_three": null,
+		"key_four": "value",
+		"key_five": 101
 	}`
 
 	// a slice of anonymous structs
@@ -119,28 +124,7 @@ func TestSimpleJSON(t *testing.T) {
 		{DOUBLEQUOTE, "\""},
 		{COLON, ":"},
 		{TRUE, "true"},
-
-		{RBRACE, "}"},
-	}
-
-	runTests(t, input, tests)
-}
-
-func TestMultiKeysJSON(t *testing.T) {
-	input := `{
-		"key_one": true,
-		"key_two": false,
-		"key_three": null,
-		"key_four": "value",
-		"key_five": 101
-	}`
-
-	// a slice of anonymous structs
-	tests := []struct {
-		expectedType    TokenType
-		expectedLiteral string
-	}{
-		{LBRACE, "{"},
+		{COMMA, ","},
 
 		{DOUBLEQUOTE, "\""},
 		{IDENTIFIER, "key_one"},
@@ -189,7 +173,12 @@ func TestMultiKeysJSONWithArray(t *testing.T) {
 		"key": "value",
 		"key-n": 101,
 		"key-o": {},
-		"key-l": []
+		"key-l": [],
+		"nestedObj": {
+			"innerKey1": "innerValue1",
+			"innerKey2": 55555,
+			"innerArray": [1, 2, 3, {"deepKey": "deepValue"}]
+		}
 	}`
 
 	// a slice of anonymous structs
@@ -229,6 +218,54 @@ func TestMultiKeysJSONWithArray(t *testing.T) {
 		{COLON, ":"},
 		{LBRACKET, "["},
 		{RBRACKET, "]"},
+		{COMMA, ","},
+
+		// .....
+		{DOUBLEQUOTE, "\""},
+		{IDENTIFIER, "nestedObj"},
+		{DOUBLEQUOTE, "\""},
+		{COLON, ":"},
+		{LBRACE, "{"},
+
+		{DOUBLEQUOTE, "\""},
+		{IDENTIFIER, "innerKey1"},
+		{DOUBLEQUOTE, "\""},
+		{COLON, ":"},
+		{DOUBLEQUOTE, "\""},
+		{IDENTIFIER, "innerValue1"},
+		{DOUBLEQUOTE, "\""},
+		{COMMA, ","},
+
+		{DOUBLEQUOTE, "\""},
+		{IDENTIFIER, "innerKey2"},
+		{DOUBLEQUOTE, "\""},
+		{COLON, ":"},
+		{INT, "55555"},
+		{COMMA, ","},
+
+		{DOUBLEQUOTE, "\""},
+		{IDENTIFIER, "innerArray"},
+		{DOUBLEQUOTE, "\""},
+		{COLON, ":"},
+		{LBRACKET, "["},
+		{INT, "1"},
+		{COMMA, ","},
+		{INT, "2"},
+		{COMMA, ","},
+		{INT, "3"},
+		{COMMA, ","},
+		{LBRACE, "{"},
+		{DOUBLEQUOTE, "\""},
+		{IDENTIFIER, "deepKey"},
+		{DOUBLEQUOTE, "\""},
+		{COLON, ":"},
+		{DOUBLEQUOTE, "\""},
+		{IDENTIFIER, "deepValue"},
+		{DOUBLEQUOTE, "\""},
+
+		{RBRACE, "}"},
+		{RBRACKET, "]"},
+		{RBRACE, "}"},
 
 		{RBRACE, "}"},
 	}
