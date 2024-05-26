@@ -17,20 +17,21 @@ lexer := NewLexer(input)
 token := lexer.NextToken()
 ```
 
-## TODO:
+## TODO
+
 - [x] Parse Numbers in Keys, e.x. `{"key1": 1, "key2": 2, "3", 3, "a123": true}`
-- [] Parser
-- [] Support Unicode characters
-- [] Escape characters in strings
-    - [x] `\"` quotation mark
-    - [x] `\\` backslash
-    - [x] `\/` solidus
-    - [x] `\b` backspace
-    - [x] `\f` form feed
-    - [x] `\n` line feed
-    - [x] `\r` carriage return
-    - [x] `\t` horizontal tab
-    - [] `\uXXXX` Unicode character
-- [] Support full-fledged number notation
-    - [] [+-][0-9]+[.][0-9]+[eE][+-][0-9]+ (e.g. -123.456e+789)
-- [] Support comments
+- [ ] Parser
+- [ ] Support Unicode characters
+- [ ] Escape characters in strings
+  - [x] `\"` quotation mark
+  - [x] `\\` backslash
+  - [x] `\/` solidus
+  - [x] `\b` backspace
+  - [x] `\f` form feed
+  - [x] `\n` line feed
+  - [x] `\r` carriage return
+  - [x] `\t` horizontal tab
+  - [ ] `\uXXXX` Unicode character
+- [ ] Support full-fledged number notation
+  - [ ] `[+-][0-9]+[.][0-9]+[eE][+-][0-9]+ (e.g. -123.456e+789)`
+- [ ] Support comments
