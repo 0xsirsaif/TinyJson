@@ -41,6 +41,7 @@ var Keywords = map[string]TokenType{
 type Lexer struct {
 	input        string
 	ch           byte
+	prevPosition int
 	position     int
 	nextPosition int
 	inString     bool
@@ -55,7 +56,7 @@ func NewLexer(input string) *Lexer {
 func (lexer *Lexer) NextToken() Token {
 	var token Token
 
-	lexer.isWhiteSpace()
+	lexer.eatWhiteSpace()
 
 	switch lexer.ch {
 	case '{':
@@ -63,7 +64,10 @@ func (lexer *Lexer) NextToken() Token {
 	case '}':
 		token = newToken(RBRACE, '}')
 	case '"':
-		token = newToken(DOUBLEQUOTE, '"')
+		if !lexer.isQuotationMark() {
+			token = newToken(DOUBLEQUOTE, '"')
+		}
+
 		lexer.inString = !lexer.inString
 	case ':':
 		token = newToken(COLON, ':')
@@ -86,7 +90,9 @@ func (lexer *Lexer) NextToken() Token {
 					return token
 				}
 			}
+
 			token.Literal = lexer.readIdentifier()
+
 			token.Type = lookupIdentifier(token.Literal)
 			return token
 		} else if isDigit(lexer.ch) {
@@ -107,6 +113,8 @@ func (lexer *Lexer) readCharacter() {
 	} else {
 		lexer.ch = lexer.input[lexer.nextPosition]
 	}
+
+	lexer.prevPosition = lexer.position
 	lexer.position = lexer.nextPosition
 	lexer.nextPosition++
 }
@@ -121,10 +129,22 @@ func (lexer *Lexer) readNumber() string {
 
 func (lexer *Lexer) readIdentifier() string {
 	position := lexer.position
-	for isLetter(lexer.ch) {
+	for isLetter(lexer.ch) || (lexer.ch == '"' && lexer.input[lexer.prevPosition] == '\\') {
 		lexer.readCharacter()
 	}
+
 	return lexer.input[position:lexer.position]
+}
+
+func (lexer *Lexer) isQuotationMark() bool {
+
+	return lexer.input[lexer.prevPosition:lexer.position] == "\\\""
+}
+
+func (lexer *Lexer) eatWhiteSpace() {
+	for lexer.ch == ' ' || lexer.ch == '\t' || lexer.ch == '\n' || lexer.ch == '\r' {
+		lexer.readCharacter()
+	}
 }
 
 func isLetter(ch byte) bool {
@@ -132,17 +152,15 @@ func isLetter(ch byte) bool {
 		('A' <= ch && ch <= 'Z') ||
 		('0' <= ch && ch <= '9') ||
 		(ch == '_') ||
-		(ch == '-')
+		(ch == '-') ||
+		(ch == '\\') ||
+		(ch == '/') ||
+		(ch == ' ')
+
 }
 
 func isDigit(ch byte) bool {
 	return '0' <= ch && ch <= '9'
-}
-
-func (lexer *Lexer) isWhiteSpace() {
-	for lexer.ch == ' ' || lexer.ch == '\t' || lexer.ch == '\n' || lexer.ch == '\r' {
-		lexer.readCharacter()
-	}
 }
 
 func newToken(tokenType TokenType, ch byte) Token {

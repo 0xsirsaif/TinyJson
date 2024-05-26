@@ -22,14 +22,14 @@ token := lexer.NextToken()
 - [] Parser
 - [] Support Unicode characters
 - [] Escape characters in strings
-    - [] `\"` quotation mark
-    - [] `\\` backslash
-    - [] `\/` solidus
-    - [] `\b` backspace
-    - [] `\f` form feed
-    - [] `\n` line feed
-    - [] `\r` carriage return
-    - [] `\t` horizontal tab
+    - [x] `\"` quotation mark
+    - [x] `\\` backslash
+    - [x] `\/` solidus
+    - [x] `\b` backspace
+    - [x] `\f` form feed
+    - [x] `\n` line feed
+    - [x] `\r` carriage return
+    - [x] `\t` horizontal tab
     - [] `\uXXXX` Unicode character
 - [] Support full-fledged number notation
     - [] [+-][0-9]+[.][0-9]+[eE][+-][0-9]+ (e.g. -123.456e+789)

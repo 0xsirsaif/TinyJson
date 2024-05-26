@@ -4,6 +4,23 @@ import (
 	"testing"
 )
 
+func runTests(t *testing.T, input string, tests []struct {
+	expectedType    TokenType
+	expectedLiteral string
+}) {
+	l := NewLexer(input)
+
+	for i, tt := range tests {
+		token := l.NextToken()
+		if token.Type != tt.expectedType {
+			t.Fatalf("test_samples[%d] - tokentype wrong. expected=%q, got=%q", i, tt.expectedType, token.Type)
+		}
+		if token.Literal != tt.expectedLiteral {
+			t.Fatalf("test_samples[%d] - tokenliteral wrong. expected=%q, got=%q", i, tt.expectedLiteral, token.Literal)
+		}
+	}
+}
+
 func TestEmptyInput(t *testing.T) {
 	input := ``
 
@@ -15,18 +32,7 @@ func TestEmptyInput(t *testing.T) {
 		{EOF, ""},
 	}
 
-	l := NewLexer(input)
-
-	for i, tt := range tests {
-
-		token := l.NextToken()
-		if token.Type != tt.expectedType {
-			t.Fatalf("test_samples[%d] - tokentype wrong. expected=%q, got=%q", i, tt.expectedType, token.Type)
-		}
-		if token.Literal != tt.expectedLiteral {
-			t.Fatalf("test_samples[%d] - tokenliteral wrong. expected=%q, got=%q", i, tt.expectedLiteral, token.Literal)
-		}
-	}
+	runTests(t, input, tests)
 }
 
 func TestEmptyJSON(t *testing.T) {
@@ -41,18 +47,7 @@ func TestEmptyJSON(t *testing.T) {
 		{RBRACE, "}"},
 	}
 
-	l := NewLexer(input)
-
-	for i, tt := range tests {
-
-		token := l.NextToken()
-		if token.Type != tt.expectedType {
-			t.Fatalf("test_samples[%d] - tokentype wrong. expected=%q, got=%q", i, tt.expectedType, token.Type)
-		}
-		if token.Literal != tt.expectedLiteral {
-			t.Fatalf("test_samples[%d] - tokenliteral wrong. expected=%q, got=%q", i, tt.expectedLiteral, token.Literal)
-		}
-	}
+	runTests(t, input, tests)
 }
 
 func TestSimpleJSON(t *testing.T) {
@@ -128,27 +123,16 @@ func TestSimpleJSON(t *testing.T) {
 		{RBRACE, "}"},
 	}
 
-	l := NewLexer(input)
-
-	for i, tt := range tests {
-		token := l.NextToken()
-
-		if token.Type != tt.expectedType {
-			t.Fatalf("test_samples[%d] - tokentype wrong. expected=%q, got=%q", i, tt.expectedType, token.Type)
-		}
-		if token.Literal != tt.expectedLiteral {
-			t.Fatalf("test_samples[%d] - tokenliteral wrong. expected=%q, got=%q", i, tt.expectedLiteral, token.Literal)
-		}
-	}
+	runTests(t, input, tests)
 }
 
 func TestMultiKeysJSON(t *testing.T) {
 	input := `{
- 		"key_one": true,
- 		"key_two": false,
- 		"key_three": null,
- 		"key_four": "value",
- 		"key_five": 101
+		"key_one": true,
+		"key_two": false,
+		"key_three": null,
+		"key_four": "value",
+		"key_five": 101
 	}`
 
 	// a slice of anonymous structs
@@ -197,27 +181,15 @@ func TestMultiKeysJSON(t *testing.T) {
 		{RBRACE, "}"},
 	}
 
-	l := NewLexer(input)
-
-	for i, tt := range tests {
-
-		token := l.NextToken()
-
-		if token.Type != tt.expectedType {
-			t.Fatalf("test_samples[%d] - tokentype wrong. expected=%q, got=%q", i, tt.expectedType, token.Type)
-		}
-		if token.Literal != tt.expectedLiteral {
-			t.Fatalf("test_samples[%d] - tokenliteral wrong. expected=%q, got=%q", i, tt.expectedLiteral, token.Literal)
-		}
-	}
+	runTests(t, input, tests)
 }
 
 func TestMultiKeysJSONWithArray(t *testing.T) {
 	input := `{
 		"key": "value",
- 		"key-n": 101,
- 		"key-o": {},
- 		"key-l": []
+		"key-n": 101,
+		"key-o": {},
+		"key-l": []
 	}`
 
 	// a slice of anonymous structs
@@ -261,16 +233,102 @@ func TestMultiKeysJSONWithArray(t *testing.T) {
 		{RBRACE, "}"},
 	}
 
-	l := NewLexer(input)
+	runTests(t, input, tests)
+}
 
-	for i, tt := range tests {
-
-		token := l.NextToken()
-		if token.Type != tt.expectedType {
-			t.Fatalf("test_samples[%d] - tokentype wrong. expected=%q, got=%q", i, tt.expectedType, token.Type)
-		}
-		if token.Literal != tt.expectedLiteral {
-			t.Fatalf("test_samples[%d] - tokenliteral wrong. expected=%q, got=%q", i, tt.expectedLiteral, token.Literal)
-		}
+func TestEscapeChars(t *testing.T) {
+	input := `{
+		"quotation-mark": "\" value and \b new value",
+		"backslash": "\\ value",
+		"solidus": "\/ value",
+		"backspace": "\b value",
+		"form-feed": "\f value",
+		"line-feed": "\n value",
+		"carriage-return": "\r value",
+		"horizontal-tab": "\t value"
 	}
+	`
+
+	// a slice of anonymous structs
+	tests := []struct {
+		expectedType    TokenType
+		expectedLiteral string
+	}{
+		{LBRACE, "{"},
+
+		{DOUBLEQUOTE, "\""},
+		{IDENTIFIER, "quotation-mark"},
+		{DOUBLEQUOTE, "\""},
+		{COLON, ":"},
+		{DOUBLEQUOTE, "\""},
+		{IDENTIFIER, "\\\" value and \\b new value"},
+		{DOUBLEQUOTE, "\""},
+		{COMMA, ","},
+
+		{DOUBLEQUOTE, "\""},
+		{IDENTIFIER, "backslash"},
+		{DOUBLEQUOTE, "\""},
+		{COLON, ":"},
+		{DOUBLEQUOTE, "\""},
+		{IDENTIFIER, "\\\\ value"},
+		{DOUBLEQUOTE, "\""},
+		{COMMA, ","},
+
+		{DOUBLEQUOTE, "\""},
+		{IDENTIFIER, "solidus"},
+		{DOUBLEQUOTE, "\""},
+		{COLON, ":"},
+		{DOUBLEQUOTE, "\""},
+		{IDENTIFIER, "\\/ value"},
+		{DOUBLEQUOTE, "\""},
+		{COMMA, ","},
+
+		{DOUBLEQUOTE, "\""},
+		{IDENTIFIER, "backspace"},
+		{DOUBLEQUOTE, "\""},
+		{COLON, ":"},
+		{DOUBLEQUOTE, "\""},
+		{IDENTIFIER, "\\b value"},
+		{DOUBLEQUOTE, "\""},
+		{COMMA, ","},
+
+		{DOUBLEQUOTE, "\""},
+		{IDENTIFIER, "form-feed"},
+		{DOUBLEQUOTE, "\""},
+		{COLON, ":"},
+		{DOUBLEQUOTE, "\""},
+		{IDENTIFIER, "\\f value"},
+		{DOUBLEQUOTE, "\""},
+		{COMMA, ","},
+
+		{DOUBLEQUOTE, "\""},
+		{IDENTIFIER, "line-feed"},
+		{DOUBLEQUOTE, "\""},
+		{COLON, ":"},
+		{DOUBLEQUOTE, "\""},
+		{IDENTIFIER, "\\n value"},
+		{DOUBLEQUOTE, "\""},
+		{COMMA, ","},
+
+		{DOUBLEQUOTE, "\""},
+		{IDENTIFIER, "carriage-return"},
+		{DOUBLEQUOTE, "\""},
+		{COLON, ":"},
+		{DOUBLEQUOTE, "\""},
+		{IDENTIFIER, "\\r value"},
+		{DOUBLEQUOTE, "\""},
+		{COMMA, ","},
+
+		{DOUBLEQUOTE, "\""},
+		{IDENTIFIER, "horizontal-tab"},
+		{DOUBLEQUOTE, "\""},
+		{COLON, ":"},
+		{DOUBLEQUOTE, "\""},
+		{IDENTIFIER, "\\t value"},
+		{DOUBLEQUOTE, "\""},
+
+		{RBRACE, "}"},
+	}
+
+	runTests(t, input, tests)
 }
