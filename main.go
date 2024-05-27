@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"github.com/0xsirsaif/TinyJson/tiny_json"
-	"io"
 	"os"
 )
 
@@ -20,8 +19,7 @@ func readJsonFile(filePath string) string {
 	var err error
 
 	if filePath == "-" {
-		fileBytes, err = io.ReadAll(os.Stdin)
-
+		tiny_json.Start(os.Stdin, os.Stdout)
 	} else {
 		fileBytes, err = os.ReadFile("./" + filePath)
 	}

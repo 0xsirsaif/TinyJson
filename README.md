@@ -20,8 +20,13 @@ token := lexer.NextToken()
 ## TODO
 
 - [x] Parse Numbers in Keys, e.x. `{"key1": 1, "key2": 2, "3", 3, "a123": true}`
-- [ ] Parser
-- [ ] Support Unicode characters
+- [ ] REPL
+  - [x] Basic Read-Eval-Print-Loop
+  - [ ] Support move cursor: right, left, up, down
+  - [ ] Support delete character, backspace
+  - [ ] support clear command, Ctrl+L or `clear`
+  - [ ] Support delete line, Ctrl+U
+  - [ ] support history, up, down
 - [ ] Escape characters in strings
   - [x] `\"` quotation mark
   - [x] `\\` backslash
@@ -35,3 +40,5 @@ token := lexer.NextToken()
 - [ ] Support full-fledged number notation
   - [ ] `[+-][0-9]+[.][0-9]+[eE][+-][0-9]+ (e.g. -123.456e+789)`
 - [ ] Support comments
+- [ ] Parser
+- [ ] Support Unicode characters
